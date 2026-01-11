@@ -1,8 +1,7 @@
-import { API_BASE_URL } from "../constants";
 import type { Chapter } from "../types/chapter";
 
 export async function getChapters(): Promise<Chapter[]> {
-  const res = await fetch(`${API_BASE_URL}/chapters`, {
+  const res = await fetch(`${BACKEND_HOST}/chapters`, {
     cache: "no-store",
   });
 

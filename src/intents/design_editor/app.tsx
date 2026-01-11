@@ -15,9 +15,9 @@ import { getChapters } from "./repositories/getChapters";
 import { fetchVerseByKey } from "./repositories/getVerseByKey";
 import { fetchTranslations } from "./repositories/getTranslations";
 
-import { Chapter } from "./types/chapter";
-import { Verse } from "./types/verse";
-import { Translation } from "./types/translation";
+import type { Chapter } from "./types/chapter";
+import type { Verse } from "./types/verse";
+import type { Translation } from "./types/translation";
 import { capitalizeFirstLetter } from "./utils/capitalizeFirstChar";
 import PlaceholderView from "./components/PlaceholderView";
 import PreviewBox from "./components/PreviewBox";

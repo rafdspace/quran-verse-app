@@ -1,11 +1,10 @@
-import { API_BASE_URL } from "../constants";
-import { Verse } from "../types/verse";
+import type { Verse } from "../types/verse";
 
 export async function fetchVerseByKey(
   verseKey: string,
   translationId: string,
 ): Promise<Verse> {
-  const url = new URL(`${API_BASE_URL}/verse/${verseKey}`);
+  const url = new URL(`${BACKEND_HOST}/verse/${verseKey}`);
 
   if (translationId) {
     url.searchParams.set("translationId", translationId);
