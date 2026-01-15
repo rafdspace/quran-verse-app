@@ -1,16 +1,32 @@
 import type { Verse } from "../types/verse";
 
-export async function fetchVerseByKey(
-  verseKey: string,
-  translationId: string,
-): Promise<Verse> {
-  const url = new URL(`${BACKEND_HOST}/verse/${verseKey}`);
+interface FetchVerseProps {
+  verseKey: string;
+  translationId?: string;
+  language?: string;
+}
+
+export async function fetchVerseByKey({
+  verseKey,
+  translationId,
+  language,
+}: FetchVerseProps): Promise<Verse> {
+  const params = new URLSearchParams();
 
   if (translationId) {
-    url.searchParams.set("translationId", translationId);
+    params.set("translationId", translationId);
   }
 
-  const res = await fetch(url.toString(), {
+  if (language) {
+    params.set("language", language);
+  }
+
+  const query = params.toString();
+  const url = query
+    ? `${BACKEND_HOST}/verse/${verseKey}?${query}`
+    : `${BACKEND_HOST}/verse/${verseKey}`;
+
+  const res = await fetch(url, {
     cache: "no-store",
   });
 

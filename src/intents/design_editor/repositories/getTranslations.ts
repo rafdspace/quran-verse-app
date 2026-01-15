@@ -1,7 +1,17 @@
 import type { Translation } from "../types/translation";
 
-export async function fetchTranslations(): Promise<Translation[]> {
-  const res = await fetch(`${BACKEND_HOST}/translations`, {
+interface Props {
+  language?: string;
+}
+
+export async function fetchTranslations({
+  language = "en",
+}: Props = {}): Promise<Translation[]> {
+  const query = new URLSearchParams({
+    language,
+  }).toString();
+
+  const res = await fetch(`${BACKEND_HOST}/translations?${query}`, {
     cache: "no-store",
   });
 

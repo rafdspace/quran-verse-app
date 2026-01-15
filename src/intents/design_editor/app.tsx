@@ -22,6 +22,7 @@ import { capitalizeFirstLetter } from "./utils/capitalizeFirstChar";
 import PlaceholderView from "./components/PlaceholderView";
 import PreviewBox from "./components/PreviewBox";
 import { removeHtmlTags } from "./utils/removeHtmlTags";
+import { VERSE_MESSAGES } from "./constants";
 
 export const App = () => {
   const intl = useIntl();
@@ -29,6 +30,8 @@ export const App = () => {
   const addElement = [addElementAtPoint, addElementAtCursor].find((fn) =>
     isSupported(fn),
   );
+  
+  const userLocale = intl.locale;
 
   const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
   const [isVerseLoading, setIsVerseLoading] = useState<boolean>(false);
@@ -45,8 +48,8 @@ export const App = () => {
 
     try {
       const [chaptersData, translationsData] = await Promise.all([
-        getChapters(),
-        fetchTranslations(),
+        getChapters({ language: userLocale }),
+        fetchTranslations({ language: userLocale }),
       ]);
 
       setChapters(chaptersData);
@@ -74,7 +77,11 @@ export const App = () => {
       setIsVerseLoading(true);
 
       try {
-        const data = await fetchVerseByKey(verseKey, selectedTranslation || "");
+        const data = await fetchVerseByKey({
+          verseKey,
+          translationId: selectedTranslation || "",
+          language: userLocale,
+        });
         setVerse(data);
       } finally {
         setIsVerseLoading(false);
@@ -93,7 +100,8 @@ export const App = () => {
           description: "Option label to disable verse translation",
         }),
       },
-      ...[...translations]
+      ...translations
+        .filter((t) => t.language_name?.trim())
         .sort((a, b) =>
           a.language_name.localeCompare(b.language_name, "en", {
             sensitivity: "base",
@@ -104,7 +112,7 @@ export const App = () => {
           label: capitalizeFirstLetter(`${t.language_name} — ${t.name}`),
         })),
     ],
-    [translations],
+    [translations, intl],
   );
 
   const chaptersOptions = chapters.map((chapter) => ({
@@ -118,10 +126,14 @@ export const App = () => {
     const chapter = chapters.find((c) => c.id.toString() === selectedChapter);
     if (!chapter) return [];
 
-    return Array.from({ length: chapter.verses_count }, (_, i) => ({
-      value: (i + 1).toString(),
-      label: (i + 1).toString(),
-    }));
+    const verseCount = chapter.verses_count;
+
+    return Object.entries(VERSE_MESSAGES)
+      .slice(0, verseCount)
+      .map(([key, message]) => ({
+        label: message,
+        value: key,
+      }));
   }, [chapters, selectedChapter]);
 
   const textUthmani = verse?.text_uthmani || "";
@@ -166,7 +178,6 @@ export const App = () => {
                   setSelectedVerseNumber("1");
                 }}
                 value={selectedChapter}
-                searchable
                 stretch
               />
             )}
@@ -210,7 +221,6 @@ export const App = () => {
                 options={translationOptions}
                 onChange={(val) => setSelectedTranslation(val)}
                 value={selectedTranslation ?? ""}
-                searchable
                 stretch
               />
             )}

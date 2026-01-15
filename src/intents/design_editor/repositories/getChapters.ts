@@ -1,7 +1,17 @@
 import type { Chapter } from "../types/chapter";
 
-export async function getChapters(): Promise<Chapter[]> {
-  const res = await fetch(`${BACKEND_HOST}/chapters`, {
+interface Props {
+  language?: string;
+}
+
+export async function getChapters({ language = "en" }: Props = {}): Promise<
+  Chapter[]
+> {
+  const query = new URLSearchParams({
+    language,
+  }).toString();
+
+  const res = await fetch(`${BACKEND_HOST}/chapters?${query}`, {
     cache: "no-store",
   });
 
