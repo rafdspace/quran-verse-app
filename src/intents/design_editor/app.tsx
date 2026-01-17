@@ -30,7 +30,7 @@ export const App = () => {
   const addElement = [addElementAtPoint, addElementAtCursor].find((fn) =>
     isSupported(fn),
   );
-  
+
   const userLocale = intl.locale;
 
   const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
@@ -178,6 +178,7 @@ export const App = () => {
                   setSelectedVerseNumber("1");
                 }}
                 value={selectedChapter}
+                searchable
                 stretch
               />
             )}
@@ -221,6 +222,7 @@ export const App = () => {
                 options={translationOptions}
                 onChange={(val) => setSelectedTranslation(val)}
                 value={selectedTranslation ?? ""}
+                searchable
                 stretch
               />
             )}
