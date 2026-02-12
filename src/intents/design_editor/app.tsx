@@ -24,6 +24,12 @@ import PreviewBox from "./components/PreviewBox";
 import { removeHtmlTags } from "./utils/removeHtmlTags";
 import { VERSE_MESSAGES } from "./constants";
 
+type TranslationSelectOption = {
+  value: string;
+  label: string;
+  keyword: string;
+};
+
 export const App = () => {
   const intl = useIntl();
   const isSupported = useFeatureSupport();
@@ -91,11 +97,15 @@ export const App = () => {
     fetchVerse();
   }, [selectedChapter, selectedVerseNumber, selectedTranslation]);
 
-  const translationOptions = useMemo(
+  const translationOptions: TranslationSelectOption[] = useMemo(
     () => [
       {
         value: "",
         label: intl.formatMessage({
+          defaultMessage: "No translation",
+          description: "Option label to disable verse translation",
+        }),
+        keyword: intl.formatMessage({
           defaultMessage: "No translation",
           description: "Option label to disable verse translation",
         }),
@@ -107,10 +117,19 @@ export const App = () => {
             sensitivity: "base",
           }),
         )
-        .map((t) => ({
-          value: t.id.toString(),
-          label: capitalizeFirstLetter(`${t.language_name} — ${t.name}`),
-        })),
+        .map((t) => {
+          const labelName = capitalizeFirstLetter(
+            `${t.language_name} — ${t.name}`,
+          );
+          const keyword =
+            t.language_name + ", " + t.translated_name.language_name;
+
+          return {
+            value: t.id.toString(),
+            label: labelName,
+            keyword,
+          };
+        }),
     ],
     [translations, intl],
   );
@@ -222,7 +241,22 @@ export const App = () => {
                 options={translationOptions}
                 onChange={(val) => setSelectedTranslation(val)}
                 value={selectedTranslation ?? ""}
-                searchable
+                searchable={{
+                  filterFn: (query, options) => {
+                    const q = query.trim().toLowerCase();
+
+                    if (!q) return options;
+
+                    return (options as TranslationSelectOption[]).filter(
+                      (option) => {
+                        const label = option.label?.toLowerCase() ?? "";
+                        const keyword = option.keyword?.toLowerCase() ?? "";
+
+                        return label.includes(q) || keyword.includes(q);
+                      },
+                    );
+                  },
+                }}
                 stretch
               />
             )}
